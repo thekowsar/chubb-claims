@@ -1,55 +1,61 @@
 # AI working journal
 
-A running log of what I asked the AI, what the AI proposed, and whether I accepted, challenged or overrode it, with brief reasoning. Built only from the project conversation, in order. "AI self-check" rows are where the AI found a problem in its own work.
+A running log of what I asked the AI, what the AI proposed, and whether I accepted, challenged or overrode it, with brief reasoning. Built only from the project conversation, in order. **Prompt** rows summarise the step prompt I sent, from my prompt file (`chubb-claims-prompts.txt`). Where the file and the conversation differ, the conversation is the record. "AI self-check" rows are where the AI found a problem in its own work.
 
 | # | Step | What I asked | What the AI proposed | Outcome | Brief reason |
 |---|---|---|---|---|---|
-| 1 | 1 Setup | Set up the project | A setup with 3 parallel planning threads | **Overrode:** I drove it step by step | Review each doc before the next |
-| 2 | 1 Setup | Start from the client brief | Flagged that the brief docx was missing at first | Accepted (no objection) | Can't plan without the brief |
-| 3 | 1 Setup | Fill `CLAUDE.md` | Asked before filling the empty file; stack taken from `context.md` (Java 17 at the time) | Accepted | `context.md` was the source |
-| 4 | 1 Setup | Add 4 rules: H2 file mode, springdoc Swagger, one vertical slice first, review each doc before the next | Added them to `context.md` and `CLAUDE.md`, plus 2 unasked rules (keep `data/` out of git, Swagger must match the spec), and said so | Accepted (no objection) | Both follow from my rules |
-| 5 | 1 Setup | Folder structure: `planning/`, `server/`, `client/`, `.gitkeep`, comment-only `docker-compose.yml`, `.gitignore` list, no code yet | Created it as given | **My structure** | Plan first, no code |
-| 6 | 1 Setup | Move the brief into `planning/` | Asked to update the brief's path in `CLAUDE.md` | Accepted (I said yes) | Keep paths correct |
-| 7 | 2 Requirements | Two roles, CLAIMANT and CLAIMANT_STAFF | Asked whether I meant CLAIMS_STAFF and pointed out there was no manager | **AI challenged me; I overrode** its default by adding a MANAGER role for the dashboard | Three roles: CLAIMANT, CLAIMS_STAFF, MANAGER |
-| 8 | 2 Requirements | Claim status lifecycle | Submitted, Under review, Info requested, Approved, Settled, Rejected | **Overrode:** Submitted > Assigned (manager) > In progress (staff) > Settled or Rejected (staff, with note) | Simpler, matches who does what |
-| 9 | 2 Requirements | Claim fields and priorities | Default fields and priorities | Accepted | |
-| 10 | 2 Requirements | Kafka where event-driven fits | Spring events with a later Kafka path | **Overrode:** no Kafka, REST only | Small scope |
-| 11 | 2 Requirements | How claimants provide more info | Notes while In progress | **Overrode (refined):** messages while In progress, decision note required to settle or reject | No extra status needed |
-| 12 | 2 Requirements | Open assumptions | Spring Security + JWT, 401/403 codes, managers assign (brief said staff pick up) | Accepted; added to `CLAUDE.md` on my yes | Needed for three roles and auth |
-| 13 | 2 Requirements | Filtering and pagination mandatory (my addition) | Assumed the date filter meant incident date | **Overrode:** submitted date | That's how lists are searched |
-| 14 | 2 Requirements | Review | — | Approved | |
-| 15 | 3 Workflow | Workflow doc (prompt again listed two roles) | Pointed out the approved docs have three roles | **AI challenged me;** I accepted three | Consistent with 01 |
-| 16 | 3 Workflow | Sequence diagrams | 5 sequence diagrams | Accepted | |
-| 17 | 3 Workflow | Clarifications | Staff get 403 on unassigned claims; settle uses the saved assessed amount; error code for a bad token; concurrent change refused | Accepted; marked done in `context.md` on my ask | Make 01 precise |
-| 18 | 4 DB design | Seed data and schema | 2 claimants, 2 staff, 1 manager; Flyway + idempotent seeder instead of Hibernate auto-update; no deletes | Accepted | Repeatable schema |
-| 19 | 4 DB design | Roles | Role as a column on `users` | **Overrode:** role menus must be in the DB, so roles table linked to users, plus `menus` and `role_menu`. AI asked to update approved 01 and 02; I said yes | Menus change without a frontend release |
-| 20 | 4 DB design | Other choices | Currency limited to market currencies, status history as core, audit username, H2 console dev only | Accepted | |
-| 21 | 5 API spec | API spec (prompt listed two roles) | Kept three roles | Accepted (no objection) | Approved docs |
-| 22 | 5 API spec | Spec review | Concurrent-change error code, claim history endpoint, nested login response | Accepted | |
-| 23 | 5 API spec | Questioned `/api/auth/me` params, `/api/menu` role source, `/api/dashboard` params | Recommended a DB lookup over the token role for the menu | **Challenged;** accepted after the answers | |
-| 24 | 5 API spec | Dashboard period week / month / all (my addition) | Calendar periods in UTC; update requirements | Accepted | |
-| 25 | 6 Frontend spec | Frontend spec | Angular Material, shared claim screens, Settle disabled until assessed, client-only network error code | Accepted 4 of 5 | |
-| 26 | 6 Frontend spec | Dashboard | No chart library | **Overrode:** pie and bar chart with ng2-charts | Visual dashboard |
-| 27 | 6 Frontend spec | "OK" | Took "OK" as approval and marked the spec done | **Challenged:** "I have to review." AI reverted; I approved later | Review gate |
-| 28 | 6 Frontend spec | Java version | — | **Overrode:** Java 17 to 21 in `CLAUDE.md` and `context.md`, added `eclipse-temurin:21` | My call |
-| 29 | 7 Login slice | Login end to end, DB to API to UI | Built it (59 server, 81 client tests); asked to add `NOT_FOUND` and `METHOD_NOT_ALLOWED` to the spec | Accepted (I said yes) | Spec first: the spec lacked these codes |
-| 30 | 7 Login slice | — | Redocly spec lint blocked by a download; gave me the command | Accepted (no objection) | |
-| 31 | 7 Login slice | Approved; asked for `README.md` and a rule to update it each step | Added both | Accepted | Keep status and run steps current |
-| 32 | 8 Server | Remaining server features + Dockerfile | 255 tests, no spec changes; Dockerfile not built (Docker Desktop not running) | Approved | |
-| 33 | 9 Client | Remaining client screens, incl. claim editing | Flagged that editing was in the ask but not in the spec (229 tests) | **Overrode:** "edit claim not needed, only status change" | Keep to the spec |
-| 34 | 9 Client | Bundle budget | Bundle 711 kB, over the 500 kB budget | **My choice:** warn 800 kB / error 1 MB, check lazy loading and unused libraries, no bigger optimization | Enough for the assessment |
-| 35 | 9 Client | Access denied shown repeatedly: root cause first | First claimed it showed "up to three times" | **Challenged.** AI self-check: that claim was wrong; real cause was components repeating the interceptor's error | Fix: one 403 message per 2-second burst |
-| 36 | 9 Client | Test for the 403 fix | AI self-check: my requested test would also have passed before the fix; added a better one | Accepted (no objection) | Test must fail without the fix |
-| 37 | 9 Client | Check 404, 500 and network handling | Found 5xx and network showed two messages, as the approved spec said; gave 3 options | **Challenged; I chose option 1:** interceptor popup with reference id, pages keep only Retry, 404 and validation stay on the page | One message per error |
-| 38 | 9 Client | Spec changes for option 1 | Lines 366 and 432; then a search found 288, 433, 434, 436 to 439, plus optional 430 and 468 | Approved one at a time | Spec first |
-| 39 | 9 Client | — | AI self-check: Settle and Reject dialogs showed a 400 as a snackbar, not inline | **My choice:** fix the code, not reword the spec; T21 line 483 approved after seeing the wording (270 tests) | Spec was right |
-| 40 | 9 Client | Step 9 docs | `CLAUDE.md` edit blocked by auto mode | I edited it myself; README feature rows updated on my yes | |
-| 41 | 10 Docker + e2e | docker-compose, `.env.example`, tests in `tests/`, rerun suites | First pass put tests in `e2e/`, no `.env.example`, no reruns, stack left running | **Challenged;** reworked to the brief: 46/46 smoke, 255 server, 270 client | Brief was explicit |
-| 42 | 10 Docker + e2e | Step 10 docs | `CLAUDE.md` edit blocked twice | I made the edit | |
-| 43 | 10 Docker + e2e | README: one-command Docker and test sections | Added them | Accepted | |
-| 44 | GitHub | Commit and push | Five commits | **Overrode:** my single commit message (`fdefc4b`). AI added the missing `.angular/` to `.gitignore` | My call |
-| 45 | GitHub | Push | Push failed on expired credentials; gave me the fix | Accepted (no objection) | |
-| 46 | Journal | Create `AI_JOURNAL.md` and a `CLAUDE.md` rule | First extended the old `AI-JOURNAL.md` and changed a different `CLAUDE.md` line | AI self-check: reverted that, created the new file and added the exact rule | Follow the instructions as written |
+| 1 | 0 Setup | **Prompt:** read `context.md` and the brief; create `CLAUDE.md` with stack, folder roles, rules, logging standards and the ApiResponse envelope; no code | A setup with 3 parallel planning threads | **Overrode:** I drove it step by step | Review each doc before the next |
+| 2 | 0 Setup | Start from the client brief | Flagged that the brief docx was missing at first | Accepted (no objection) | Can't plan without the brief |
+| 3 | 0 Setup | Fill `CLAUDE.md` | Asked before filling the empty file; stack taken from `context.md` (Java 17 at the time) | Accepted | `context.md` was the source. My prompt file already says Java 21 here; in the conversation the change came in step 6 (row 29) |
+| 4 | 0 Setup | Add 4 rules: H2 file mode, springdoc Swagger, one vertical slice first, review each doc before the next | Added them to `context.md` and `CLAUDE.md`, plus 2 unasked rules (keep `data/` out of git, Swagger must match the spec), and said so | Accepted (no objection) | Both follow from my rules |
+| 5 | 1 Folders | **Prompt:** create only missing items: `planning/`, `server/`, `client/` with `.gitkeep`, comment-only `docker-compose.yml`, root `.gitignore` (data/, node_modules/, target/, .idea/, .vscode/, dist/); keep `CLAUDE.md` and `context.md`; no code; list the tree | Created it as given | **My structure** | Plan first, no code |
+| 6 | 1 Folders | **Prompt:** move the brief into `planning/`, don't rename or edit it | Asked to update the brief's path in `CLAUDE.md` | Accepted (I said yes) | Keep paths correct |
+| 7 | 2 Requirements | **Prompt:** read the brief and `CLAUDE.md`, ask up to 5 questions, then write `01-requirements.md` (scope, roles, seed users with BCrypt, JWT login, role menu, user stories, FR/NFR tables, assumptions); report conflicts, don't edit | Asked the clarifying questions | Accepted (no objection) | Plan first |
+| 8 | 2 Requirements | Two roles, CLAIMANT and CLAIMANT_STAFF | Asked whether I meant CLAIMS_STAFF and pointed out there was no manager | **AI challenged me; I overrode** its default by adding a MANAGER role for the dashboard | Three roles: CLAIMANT, CLAIMS_STAFF, MANAGER |
+| 9 | 2 Requirements | Claim status lifecycle | Submitted, Under review, Info requested, Approved, Settled, Rejected | **Overrode:** Submitted > Assigned (manager) > In progress (staff) > Settled or Rejected (staff, with note) | Simpler, matches who does what |
+| 10 | 2 Requirements | Claim fields and priorities | Default fields and priorities | Accepted | |
+| 11 | 2 Requirements | Kafka where event-driven fits | Spring events with a later Kafka path | **Overrode:** no Kafka, REST only | Small scope |
+| 12 | 2 Requirements | How claimants provide more info | Notes while In progress | **Overrode (refined):** messages while In progress, decision note required to settle or reject | No extra status needed |
+| 13 | 2 Requirements | Open assumptions | Spring Security + JWT, 401/403 codes, managers assign (brief said staff pick up) | Accepted; added to `CLAUDE.md` on my yes | Needed for three roles and auth |
+| 14 | 2 Requirements | Filtering and pagination mandatory (my addition) | Assumed the date filter meant incident date | **Overrode:** submitted date | That's how lists are searched |
+| 15 | 2 Requirements | Review | — | Approved | |
+| 16 | 3 Workflow | **Prompt:** write `02-workflow.md` with Mermaid login flow, claim lifecycle, per-role flows, API sequence diagrams (with envelope and error path) and a permission table; up to 3 questions; no code | Pointed out the prompt listed two roles while approved docs have three | **AI challenged me;** I accepted three | Consistent with 01 |
+| 17 | 3 Workflow | Sequence diagrams | 5 sequence diagrams | Accepted | |
+| 18 | 3 Workflow | Clarifications | Staff get 403 on unassigned claims; settle uses the saved assessed amount; error code for a bad token; concurrent change refused | Accepted; marked done in `context.md` on my ask | Make 01 precise |
+| 19 | 4 DB design | **Prompt:** write `03-db-design.md` with ERD, table definitions, keys and indexes, enums, audit columns, JPA notes, seed data plan and H2 file-mode config; up to 3 questions; no code | 2 claimants, 2 staff, 1 manager; Flyway + idempotent seeder instead of Hibernate auto-update; no deletes | Accepted | Repeatable schema |
+| 20 | 4 DB design | Roles | Role as a column on `users` | **Overrode:** role menus must be in the DB, so roles table linked to users, plus `menus` and `role_menu`. AI asked to update approved 01 and 02; I said yes | Menus change without a frontend release |
+| 21 | 4 DB design | Other choices | Currency limited to market currencies, status history as core, audit username, H2 console dev only | Accepted | |
+| 22 | 5 API spec | **Prompt:** write `04-api-spec.yaml` (OpenAPI 3.0: JWT login, all endpoints with role access, DTO schemas, one reused envelope, pagination/filter/sort, 400 to 500 errors with codes, examples) plus `04-api-summary.md`; validate the YAML; no code | Kept three roles although the prompt listed two | Accepted (no objection) | Approved docs |
+| 23 | 5 API spec | Spec review | Concurrent-change error code, claim history endpoint, nested login response | Accepted | |
+| 24 | 5 API spec | Questioned `/api/auth/me` params, `/api/menu` role source, `/api/dashboard` params | Recommended a DB lookup over the token role for the menu | **Challenged;** accepted after the answers | |
+| 25 | 5 API spec | Dashboard period week / month / all (my addition) | Calendar periods in UTC; update requirements | Accepted | |
+| 26 | 6 Frontend spec | **Prompt:** write `05-frontend-spec.md` for Angular 17 (screens, wireframes, menu and guards, folder structure, auth and interceptors, forms, states, light UI library, Karma/Jasmine test plan, proxy and Docker/nginx); no code | Angular Material, shared claim screens, Settle disabled until assessed, client-only network error code | Accepted 4 of 5 | |
+| 27 | 6 Frontend spec | Dashboard | No chart library | **Overrode:** pie and bar chart with ng2-charts | Visual dashboard |
+| 28 | 6 Frontend spec | "OK" | Took "OK" as approval and marked the spec done | **Challenged:** "I have to review." AI reverted; I approved later | Review gate |
+| 29 | 6 Frontend spec | Java version | — | **Overrode:** Java 17 to 21 in `CLAUDE.md` and `context.md`, added `eclipse-temurin:21` | My call |
+| 30 | 7 Login slice | **Prompt:** Spring Boot 3.3+ in `server/` with `common/` first, Flyway V1 + seed users, JWT login per spec, service and MockMvc tests; Angular 17 in `client/` with login, auth service, interceptors, guards, menu shell and tests; run both suites; no claims yet; don't change `planning/` | Built it (59 server, 81 client tests); asked to add `NOT_FOUND` and `METHOD_NOT_ALLOWED` to the spec | Accepted (I said yes) | Spec first: the spec lacked these codes |
+| 31 | 7 Login slice | — | Redocly spec lint blocked by a download; gave me the command | Accepted (no objection) | |
+| 32 | 7 README | **Prompt:** step 7 approved, mark steps to 7 done; then create `README.md` (overview, stack, prerequisites, Windows run steps, tests, Swagger URL, seed users, folders, planning links, status table, placeholders) and add the README update rule to `CLAUDE.md` | Added both | Accepted | Keep status and run steps current |
+| 33 | 8 Server | **Prompt:** claims, assignment, messages and dashboard exactly from 04, 03 and 02, rules in the service layer; Flyway V2+ only; unit and MockMvc tests for every endpoint and status rule; multi-stage Dockerfile + `.dockerignore`; don't touch `client/` or `planning/` | 255 tests, no spec changes; Dockerfile not built (Docker Desktop not running) | Approved | |
+| 34 | 9 Client | **Prompt:** remaining screens from 05 (claims list and detail, create/edit claim, assignment, messages, dashboard, menus), only spec endpoints, Karma/Jasmine tests for services, guards and each component, run `ng test` and `ng build`; don't edit `planning/`, `CLAUDE.md` or `README.md` | Flagged that editing was in the ask but not in the spec (229 tests) | **Overrode:** "edit claim not needed, only status change" | Keep to the spec |
+| 35 | 9 Client | Bundle budget | Bundle 711 kB, over the 500 kB budget | **My choice:** warn 800 kB / error 1 MB, check lazy loading and unused libraries, no bigger optimization | Enough for the assessment |
+| 36 | 9 Client | Access denied shown repeatedly: root cause first | First claimed it showed "up to three times" | **Challenged.** AI self-check: that claim was wrong; real cause was components repeating the interceptor's error | Fix: one 403 message per 2-second burst |
+| 37 | 9 Client | Test for the 403 fix | AI self-check: my requested test would also have passed before the fix; added a better one | Accepted (no objection) | Test must fail without the fix |
+| 38 | 9 Client | Check 404, 500 and network handling | Found 5xx and network showed two messages, as the approved spec said; gave 3 options | **Challenged; I chose option 1:** interceptor popup with reference id, pages keep only Retry, 404 and validation stay on the page | One message per error |
+| 39 | 9 Client | Spec changes for option 1 | Lines 366 and 432; then a search found 288, 433, 434, 436 to 439, plus optional 430 and 468 | Approved one at a time | Spec first |
+| 40 | 9 Client | — | AI self-check: Settle and Reject dialogs showed a 400 as a snackbar, not inline | **My choice:** fix the code, not reword the spec; T21 line 483 approved after seeing the wording (270 tests) | Spec was right |
+| 41 | 9 Client | Step 9 docs | `CLAUDE.md` edit blocked by auto mode | I edited it myself; README feature rows updated on my yes | |
+| 42 | 10 Docker + e2e | **Prompt:** client Dockerfile, `nginx.conf`, `.dockerignore`; docker-compose with named H2 volume, server healthcheck, client waits for healthy server, no `latest` tags; `.env.example`; smoke tests in `tests/` from one command; compose up, smoke, down; rerun server and client suites; README update; ask before fixing bugs | First pass put tests in `e2e/`, no `.env.example`, no reruns, stack left running | **Challenged;** reworked to the brief: 46/46 smoke, 255 server, 270 client | Brief was explicit |
+| 43 | 10 Docker + e2e | Step 10 docs | `CLAUDE.md` edit blocked twice | I made the edit | |
+| 44 | 10 Docker + e2e | README: one-command Docker and test sections | Added them | Accepted | |
+| 45 | GitHub | **Prompt:** check `.gitignore` (server/data, node_modules, target, dist, .angular, .idea, .vscode, .env), show git status, commit with my message, add the remote, push to main, no force push | Five commits | **Overrode:** my single commit message (`fdefc4b`). AI added the missing `.angular/` to `.gitignore` | My call |
+| 46 | GitHub | Push | Push failed on expired credentials; gave me the fix | Accepted (no objection) | |
+| 47 | Journal | **Prompt:** create `AI_JOURNAL.md` and a `CLAUDE.md` rule | First extended the old `AI-JOURNAL.md` and changed a different `CLAUDE.md` line | AI self-check: reverted that, created the new file and added the exact rule | Follow the instructions as written |
+| 48 | Journal | Go through every prompt and response in order, one row per meaningful step or decision | Rebuilt the table step by step from setup to GitHub | Accepted (no objection) | First version missed most of steps 0 to 6 |
+| 49 | Journal | **Prompt:** "Again create it" with columns #, step, what I asked, what the AI proposed, outcome, brief reason; mark my changes and questions; include AI self-checks; "accepted (no objection)" where unsure | Rebuilt from scratch; manager-routes question listed under "To fill in by me" since it isn't recorded | Accepted (no objection) | Use only what's in the thread |
+| 50 | Journal | — | Noticed the old `AI-JOURNAL.md` was deleted (not by the AI) and README still linked to it | **My choice:** README points to the new `AI_JOURNAL.md`, old file stays deleted | One journal file |
+| 51 | Journal | Also add what I asked as prompts | Added rows for the journal prompts | Accepted (no objection) | Keep the log complete |
+| 52 | Journal | Add my prompt file's prompts where they belong | Put each step's prompt into that step's first row, marked **Prompt** | Accepted (no objection) | Shows what I asked, step by step |
 
 ## To fill in by me
 
