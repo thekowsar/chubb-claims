@@ -62,6 +62,7 @@ Claims management platform (take-home assessment for Chubb APAC). Claimants repo
 - **Git:** do not commit or push unless asked. Keep a meaningful commit history when asked to commit.
 - **README:** After each step, update README.md (status table, run instructions, new features).
 - **AI journal:** keep a running log of what was asked of the AI, what was accepted, challenged and overridden, with brief reasoning.
+- After each step, add a row to AI_JOURNAL.md. Don't invent entries.
 
 ## Logging
 

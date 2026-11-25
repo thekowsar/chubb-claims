@@ -257,7 +257,7 @@ chubb-claims/
 ├── tests/                 End-to-end smoke tests (smoke.mjs), last run and screenshots
 ├── CLAUDE.md              Project rules for the AI assistant
 ├── context.md             Short project context
-├── AI-JOURNAL.md          AI working journal
+├── AI_JOURNAL.md          AI working journal
 ├── docker-compose.yml     server + client, H2 data volume
 └── .env.example           Settings for docker compose (copy to .env)
 ```
