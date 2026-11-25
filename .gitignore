@@ -1,0 +1,10 @@
+data/
+node_modules/
+target/
+.idea/
+.vscode/
+dist/
+
+# Local settings for docker compose (copy of .env.example)
+.env
+.angular/

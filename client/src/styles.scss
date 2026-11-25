@@ -1,0 +1,22 @@
+/* Global styles. Material theme: indigo-pink prebuilt (azure-blue only ships from Material 18). */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --status-submitted: #757575;
+  --status-assigned: #1e88e5;
+  --status-in-progress: #fb8c00;
+  --status-settled: #43a047;
+  --status-rejected: #e53935;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}

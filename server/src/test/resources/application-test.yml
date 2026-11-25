@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    # A fresh in-memory database per Spring context, so @DirtiesContext gives a clean seed.
+    url: jdbc:h2:mem:claims-${random.uuid};DB_CLOSE_DELAY=-1
+  h2:
+    console:
+      enabled: false
+
+app:
+  jwt:
+    secret: test-secret-for-unit-tests-only-0123456789abcdef
+    expiration-seconds: 3600
+  seed:
+    enabled: true
+    demo-password: Test-Pass-1

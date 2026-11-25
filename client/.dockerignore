@@ -1,0 +1,12 @@
+# Keep the build context small and free of local state
+node_modules/
+dist/
+coverage/
+.angular/
+.idea/
+.vscode/
+*.log
+.git/
+.gitignore
+Dockerfile
+.dockerignore

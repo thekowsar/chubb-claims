@@ -1,0 +1,51 @@
+E2E full flow against http://localhost:4200 (run e2e-1795629298231)
+
+ok    nginx serves the Angular app
+ok    nginx SPA fallback for deep links
+ok    bad password -> 401 INVALID_CREDENTIALS
+ok    no token -> 401 UNAUTHORIZED
+ok    login claimant1
+ok    login manager1
+ok    login staff1
+ok    login staff2
+ok    /api/auth/me returns the claimant
+ok    dashboard baseline read
+ok    submit with missing fields -> 400 VALIDATION_FAILED
+ok    claimant submits claim -> 201 SUBMITTED
+ok    currency defaults from market (SG -> SGD)
+      claim CLM-2026-000011 (id 11)
+ok    staff cannot submit a claim -> 403 ACCESS_DENIED
+ok    staff cannot start an unassigned claim -> 403 ACCESS_DENIED
+ok    manager lists claims staff
+ok    claimant cannot assign -> 403 ACCESS_DENIED
+ok    manager assigns to staff1 -> ASSIGNED
+ok    staff2 cannot see staff1's claim (403)
+ok    settle before start -> 409 INVALID_STATUS_TRANSITION
+ok    staff starts -> IN_PROGRESS
+ok    staff asks the claimant for more info
+ok    claimant replies with the info
+ok    staff sees the message thread (2 messages)
+ok    staff assesses at 3800.00
+ok    settle above assessed amount -> 400
+ok    staff settles -> SETTLED
+ok    reject a settled claim -> 409 INVALID_STATUS_TRANSITION
+ok    claimant sees SETTLED
+ok    claimant sees the decision note
+ok    history has the full lifecycle (SUBMITTED -> ASSIGNED -> IN_PROGRESS -> SETTLED)
+ok    login claimant2
+ok    claimant2 cannot see claimant1's claim (404)
+ok    claimant submits second claim (HK -> HKD)
+ok    manager assigns second claim to staff2 -> ASSIGNED
+ok    staff1 cannot start a claim assigned to staff2 -> 403 ACCESS_DENIED
+ok    staff2 starts -> IN_PROGRESS
+ok    reject without a note -> 400 VALIDATION_FAILED
+ok    staff2 rejects with a note -> REJECTED
+ok    claimant sees REJECTED and the note
+ok    no messages on a closed claim -> 409 MESSAGING_NOT_ALLOWED
+ok    staff cannot read dashboard -> 403 ACCESS_DENIED
+ok    dashboard submittedCount 10 -> 12
+ok    dashboard settled count 3 -> 4
+ok    dashboard rejected count 2 -> 3
+ok    dashboard SGD settled total +3800 (5600 -> 9400)
+
+All 46 checks passed (claim 11 settled, claim 12 rejected).

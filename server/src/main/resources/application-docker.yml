@@ -1,0 +1,5 @@
+# Docker profile (03 §8): H2 console stays off; data lives in the /app/data volume.
+spring:
+  h2:
+    console:
+      enabled: false
