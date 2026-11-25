@@ -1,0 +1,245 @@
+CHUBB-CLAIMS: STEP PROMPTS (0 to 10) + EXTRAS
+=================================================
+Paste each prompt into the folder-connected chat of the "chubb-claims" project.
+Environment: Java 21, Maven 3.8.6, Node 20.19, Angular CLI 17.3, Windows 11.
+Roles: CLAIMANT, CLAIMANT_STAFF.
+
+
+-------------------------------------------------
+STEP 0: SETUP (CLAUDE.md)
+-------------------------------------------------
+Read context.md and the brief in the project files. Create CLAUDE.md in the connected folder with the stack, folder roles (planning/ = docs, server/ = Spring Boot, client/ = Angular), rules, logging standards and the ApiResponse envelope. Update the Java version to 21 everywhere (Docker image eclipse-temurin:21). Don't write any code.
+
+
+-------------------------------------------------
+STEP 1: FOLDER STRUCTURE
+-------------------------------------------------
+Create this structure in the connected folder, only the missing items, and don't overwrite existing files:
+
+chubb-claims/
+  CLAUDE.md
+  planning/
+  server/
+  client/
+  docker-compose.yml
+
+Rules:
+- Keep the existing CLAUDE.md and context.md as they are.
+- Add an empty .gitkeep inside planning/, server/ and client/ so git keeps them.
+- docker-compose.yml: only a comment line for now, no services yet.
+- Add a root .gitignore with: data/, node_modules/, target/, .idea/, .vscode/, dist/.
+- Don't generate any Spring Boot or Angular code yet.
+Then list the folder tree so I can confirm.
+
+Then (separate message):
+Move 00-candidate_assessment_brief.docx into planning/. Don't rename or edit it.
+
+
+-------------------------------------------------
+STEP 2: REQUIREMENTS
+-------------------------------------------------
+Start step 2: requirements.
+
+1. Read planning/00-candidate_assessment_brief.docx and CLAUDE.md.
+2. Ask me up to 5 short questions about anything unclear or missing in the brief (scope, claim fields, statuses, must-have vs nice-to-have). Wait for my answers.
+3. Then write planning/01-requirements.md with:
+   - Overview and scope (in / out)
+   - User roles (two): CLAIMANT (the person who files claims) and CLAIMANT_STAFF (staff who handle claims). Confirm the exact meaning with me.
+   - No registration screen. Users come from seed data at startup, with BCrypt-hashed passwords.
+   - Login page: username and password, JWT, seeded users
+   - Role-specific access and menu (table: role, menu items, allowed actions)
+   - User stories with acceptance criteria
+   - Functional requirements (table: ID, requirement, priority)
+   - Non-functional requirements (logging, response envelope, tests, Docker)
+   - Assumptions and open questions
+4. Don't write any code. Show me a short summary when done, and wait for my approval before step 3.
+5. If you find a mistake or conflict in any document, don't edit it. Tell me and wait for my approval.
+
+
+-------------------------------------------------
+STEP 3: WORKFLOW
+-------------------------------------------------
+Start step 3: workflow.
+
+1. Read planning/00-candidate_assessment_brief.docx, planning/01-requirements.md and CLAUDE.md.
+2. If anything in the requirements is unclear for the workflow, ask me up to 3 short questions first and wait.
+3. Write planning/02-workflow.md with Mermaid diagrams plus a short text note for each:
+   - Login flow (username/password, JWT, role-based redirect)
+   - Claim lifecycle for the claim statuses (state diagram: who can move a claim from which status to which, and who is allowed to do it)
+   - Main user flows per role, as flowcharts
+   - API call sequence for the main actions (sequence diagrams: client -> controller -> service -> repository -> H2, including the ApiResponse envelope and error path)
+   - Role and permission rules in a table (action, role allowed, notes)
+4. Don't write any code and don't change any other document. If you find a conflict with the requirements, tell me and wait for my approval.
+5. Show me a short summary when done and wait for my approval before step 4.
+
+
+-------------------------------------------------
+STEP 4: DB DESIGN
+-------------------------------------------------
+Start step 4: DB design.
+
+1. Read planning/00-candidate_assessment_brief.docx, planning/01-requirements.md, planning/02-workflow.md and CLAUDE.md.
+2. If something is unclear for the data model, ask me up to 3 short questions first and wait.
+3. Write planning/03-db-design.md with:
+   - ERD as a Mermaid erDiagram
+   - Table definitions (table: column, type, nullable, constraints, notes) for every entity
+   - Relationships and foreign keys, indexes, unique constraints
+   - Enums (roles, claim statuses) matching the workflow
+   - Audit columns (created_at, updated_at, created_by) and any soft-delete rule
+   - JPA entity notes (mapping, fetch type, cascade)
+   - Seed data plan (seed users for both roles, with BCrypt-hashed passwords, plus sample claims) and how it loads at startup
+   - H2 file-mode config (jdbc:h2:file:./data/db) and a note on the H2 console
+4. Don't write any code and don't change any other document. If you find a conflict with earlier documents, tell me and wait for my approval.
+5. Show me a short summary when done and wait for my approval before step 5.
+
+
+-------------------------------------------------
+STEP 5: API DOCUMENT
+-------------------------------------------------
+Start step 5: API document.
+
+1. Read planning/00-candidate_assessment_brief.docx, 01-requirements.md, 02-workflow.md, 03-db-design.md and CLAUDE.md.
+2. If something is unclear, ask me up to 3 short questions first and wait.
+3. Write planning/04-api-spec.yaml in OpenAPI 3.0 with:
+   - Auth: POST /api/auth/login (JWT), plus bearer security scheme
+   - All endpoints needed for the requirements and workflow, with role access on each
+   - Request and response schemas as DTOs, never entities
+   - Every response wrapped in the common ApiResponse envelope (success, data, error, timestamp), defined once in components and reused
+   - Pagination, filtering and sorting for list endpoints
+   - Error responses (400, 401, 403, 404, 409, 500) with error codes
+   - Examples for the main requests and responses
+4. Also write a short planning/04-api-summary.md: a table of endpoint, method, role, purpose, and requirement ID.
+5. Validate the YAML is valid OpenAPI. Don't write any code and don't change other documents. If you find a conflict, tell me and wait for my approval.
+6. Show me a short summary when done and wait for my approval before step 6.
+
+
+-------------------------------------------------
+STEP 6: FRONTEND DOCUMENT
+-------------------------------------------------
+Start step 6: frontend document.
+
+1. Read planning/00-candidate_assessment_brief.docx, 01-requirements.md, 02-workflow.md, 03-db-design.md, 04-api-spec.yaml and CLAUDE.md.
+2. If something is unclear, ask me up to 3 short questions first and wait.
+3. Write planning/05-frontend-spec.md for Angular 17 (standalone components, signals where useful) with:
+   - Screen list (table: screen, route, role, purpose, API calls used, requirement ID)
+   - Simple wireframes for each main screen (ASCII or Mermaid)
+   - Role-based menu and route guards
+   - Folder structure under client/src/app (core, shared, features) with names of components, services and models
+   - Auth design: login page, JWT storage, HTTP interceptor to add the token, interceptor to unwrap the ApiResponse envelope and handle errors, 401/403 handling
+   - Forms and validation rules (reactive forms) matching the API
+   - State handling, loading and error states, and an empty state per list
+   - UI library choice (keep it light) and basic styling approach
+   - Testing plan: Karma/Jasmine unit tests for services, guards, interceptors and key components, with a list of test cases
+   - Proxy config for dev, and the Docker/nginx approach for the build
+4. Don't write any code and don't change other documents. If you find a conflict with the API spec or requirements, tell me and wait for my approval.
+5. Show me a short summary when done and wait for my approval before step 7.
+
+
+-------------------------------------------------
+STEP 7: FIRST SLICE (LOGIN END TO END)
+-------------------------------------------------
+Start step 7: first slice (login end to end).
+
+1. Read CLAUDE.md and all documents in planning/. The environment is Java 21, Maven 3.8.6, Node 20.19, Angular CLI 17.3 on Windows 11.
+2. Create the Spring Boot 3.3+ project in server/ (Java 21, Maven, include the Maven wrapper; Web, Security, JPA, Validation, H2, Flyway, springdoc-openapi, Lombok, JUnit). Add the common/ package first: ApiResponse, ApiError, GlobalExceptionHandler.
+3. Implement Flyway V1__init_schema.sql and seed users exactly from 03-db-design.md, and make the entities pass ddl-auto=validate.
+4. Implement POST /api/auth/login with JWT, BCrypt and role-based security exactly as in 04-api-spec.yaml.
+5. Write unit tests (service) and MockMvc tests (controller, success and failure).
+6. Create the Angular 17 app in client/ following 05-frontend-spec.md (standalone components), with only: login page, auth service, HTTP interceptors, route guards, role-based menu shell. Add Karma/Jasmine tests for these.
+7. Run the server tests and the client tests and show me the results. Don't build claims, assignment, messages or dashboard yet.
+8. Don't change documents in planning/. If something conflicts, tell me and wait.
+
+Approval message after testing:
+Step 7 approved. In CLAUDE.md, mark steps up to 7 as done. Don't change anything else.
+
+
+-------------------------------------------------
+README (send after step 7 approval)
+-------------------------------------------------
+1. Create README.md in the project root with: overview, tech stack (Java 21, Spring Boot, H2 file mode, Flyway, Angular 17), prerequisites, how to run the server and client on Windows (mvnw.cmd and ng serve), how to run the tests, Swagger URL, seed users with usernames, roles and passwords exactly as in the seed data, folder structure, a link to the documents in planning/, and a "Status" table of steps with done/todo.
+2. Leave placeholders for Docker and features, which will be filled in later steps.
+3. Add a rule to CLAUDE.md: "After each step, update README.md (status table, run instructions, new features)."
+4. Don't change anything else, and don't edit planning/.
+
+
+-------------------------------------------------
+STEP 8: SERVER
+-------------------------------------------------
+Start step 8: server.
+
+1. Read CLAUDE.md and all documents in planning/.
+2. Implement claims, assignment, messages and dashboard in server/ exactly from 04-api-spec.yaml, 03-db-design.md and 02-workflow.md, with the status transition rules and role checks enforced in the service layer.
+3. Add Flyway migrations as needed. Don't edit V1 once applied; use V2, V3.
+4. Write unit tests (services) and MockMvc tests (every endpoint: success, validation error, forbidden, not found, and each status rule).
+5. Add a multi-stage Dockerfile in server/ using eclipse-temurin:21-jdk to build and eclipse-temurin:21-jre to run, with a .dockerignore.
+6. Run the server tests and show me the results. Don't touch client/ or planning/. If the code needs a change to the API spec, tell me and wait for my approval.
+
+Build and run the image yourself (in the server folder):
+docker build -t chubb-claims-server .
+docker run -p 8080:8080 chubb-claims-server
+
+
+-------------------------------------------------
+STEP 9: CLIENT, REMAINING SCREENS
+-------------------------------------------------
+Start step 9: client, remaining screens.
+
+1. Read CLAUDE.md and all documents in planning/ (especially 04-api-spec.yaml and 05-frontend-spec.md).
+2. Implement the remaining screens in client/ from 05-frontend-spec.md: claims list and detail, create/edit claim, assignment, messages, dashboard, and the role-based menus. Use the existing auth service, interceptors and ApiResponse handling.
+3. Use only the endpoints and models in 04-api-spec.yaml. If the server is being built in another chat, don't touch server/ and don't assume anything not in the spec.
+4. Write Karma/Jasmine tests for services (HttpTestingController), guards, and each component.
+5. Run ng test --watch=false --browsers=ChromeHeadless and ng build, and show me the results.
+6. Don't edit planning/, CLAUDE.md or README.md. If the spec seems wrong or incomplete, tell me and wait.
+
+
+-------------------------------------------------
+STEP 10: FULL DEVELOPMENT AND TEST
+-------------------------------------------------
+Start step 10: full development and test.
+
+1. Read CLAUDE.md, README.md and all documents in planning/. Steps 1-9 are done.
+2. Create client/Dockerfile (multi-stage: node:20 to build with ng build, nginx to serve) plus client/nginx.conf that serves the Angular app with SPA fallback and proxies /api to the server container. Add client/.dockerignore.
+3. Create docker-compose.yml in the root with two services: server (build ./server, port 8080) and client (build ./client, port 4200 mapped to nginx). Add a named volume so the H2 file database survives restarts, a healthcheck on the server, and make client depend on a healthy server. Don't use latest tags.
+4. Add a root .env.example if any setting (JWT secret, ports) should be configurable. Don't commit real secrets.
+5. Write end-to-end smoke tests that run against the running stack: login for each role, create and submit a claim, assign, process through every status, the dashboard update, a forbidden action for the wrong role, and the error envelope. Put them in a tests/ folder in the root, runnable from one command.
+6. Run docker compose up --build, run the smoke tests, then docker compose down. Show me the results. Also run the server tests and client tests once more.
+7. Update README.md: how to run with Docker (one command), URLs, seed users, how to run all tests, and the final status table. Update CLAUDE.md to mark steps 9 and 10 as done after I approve.
+8. Don't change planning/ or the application code unless a test finds a bug. If you find a bug or a conflict with the spec, tell me and wait for my approval before fixing.
+
+Run the full stack yourself:
+cd /d D:\Kowsar\project\assignements\chubb-claims
+docker compose up --build
+(App: http://localhost:4200   Swagger: http://localhost:8080/swagger-ui.html)
+Stop: docker compose down      Fresh start (deletes data): docker compose down -v
+
+
+-------------------------------------------------
+EXTRA: GITHUB UPLOAD
+-------------------------------------------------
+Upload this project to GitHub.
+
+1. Check .gitignore covers: server/data, node_modules, target, dist, .angular, .idea, .vscode, .env (but not .env.example). Show me git status and list anything large or secret-looking before committing.
+2. If there is no git repo yet, run git init and set the branch to main. Commit everything with the message "Chubb claims platform: planning docs, server, client, docker, tests".
+3. Add the remote https://github.com/thekowsar/chubb-claims.git and push to main.
+4. Don't force push. If the push asks for sign-in or fails, tell me exactly what to do and wait.
+5. Show me the final git log and the repo URL.
+
+Manual commands:
+git remote -v
+git push -u origin main
+
+
+-------------------------------------------------
+EXTRA: AI WORKING JOURNAL (AI_JOURNAL.md)
+-------------------------------------------------
+Create AI_JOURNAL.md in the project root, and base it on this entire thread.
+
+Requirement: "AI working journal: a running log (committed alongside the code) of what I asked the AI, what I accepted, what I challenged, and what I overrode, with brief reasoning. Does not need to be polished."
+
+1. Go through every prompt and response in this thread, in order. Add a row for each meaningful step or decision (not every small message).
+2. Table columns: #, step, what I asked, what the AI proposed, outcome (accepted / challenged / overrode), brief reason.
+3. Mark clearly where I changed or questioned the AI. Examples to check: my edits to the requirements prompt, Java 17 to 21, folder names, two roles, spec-first, the manager-routes question, error messages (403, 500, network), the Settle and Reject dialog fix, bundle budget, docker-compose and tests.
+4. Include places where the AI found a problem in its own work (for example a test that would also have passed before a fix).
+5. Use only what is in this thread. Don't invent entries. If you aren't sure how I reacted, write "accepted (no objection)".
+6. Add a rule to CLAUDE.md: "After each step, add a row to AI_JOURNAL.md. Don't invent entries."
+7. Don't change anything else, and don't commit. Show me the file when done.
